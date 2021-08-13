@@ -67,7 +67,8 @@ set_config_option() {
 
   # either override an existing entry, or append a new one
   if grep -E "^${escaped_option}:.*" "${CONF_FILE}" > /dev/null; then
-        sed -i -e "s/${escaped_option}:.*/$option: $value/g" "${CONF_FILE}"
+        sed -e "s/${escaped_option}:.*/$option: $value/g" "${CONF_FILE} > /tmp/.tmp-conf-file
+        cp -v /tmp/.tmp-conf-file "${CONF_FILE};
   else
         echo "${option}: ${value}" >> "${CONF_FILE}"
   fi
