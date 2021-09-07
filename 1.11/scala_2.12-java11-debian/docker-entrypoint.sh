@@ -19,10 +19,11 @@
 ###############################################################################
 
 COMMAND_STANDALONE="standalone-job"
-
+#set -x
 # If unspecified, the hostname of the container is taken as the JobManager address
 JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
 CONF_FILE="${FLINK_HOME}/conf/flink-conf.yaml"
+#cat ${FLINK_HOME}/conf/flink-conf.yaml
 
 drop_privs_cmd() {
     if [ $(id -u) != 0 ]; then
@@ -67,8 +68,14 @@ set_config_option() {
 
   # either override an existing entry, or append a new one
   if grep -E "^${escaped_option}:.*" "${CONF_FILE}" > /dev/null; then
-        sed -e "s/${escaped_option}:.*/$option: $value/g" "${CONF_FILE} > /tmp/.tmp-conf-file
-        cp -v /tmp/.tmp-conf-file "${CONF_FILE};
+				echo "START CRITICAL PART"
+				whoami
+				cat ${CONF_FILE}
+				sudo /opt/flink/bin/change-flink-yaml.sh ${CONF_FILE} ${escaped_option} ${option} ${value}
+#        sed -e "s/${escaped_option}:.*/$option: $value/g" ${CONF_FILE} > /tmp/.tmp-conf-file
+#        cp -v /tmp/.tmp-conf-file ${CONF_FILE};
+				echo "END CRITICAL PART"
+#				sleep 600
   else
         echo "${option}: ${value}" >> "${CONF_FILE}"
   fi
@@ -89,7 +96,8 @@ prepare_job_manager_start() {
     if [ -n "${FLINK_PROPERTIES}" ]; then
         echo "${FLINK_PROPERTIES}" >> "${CONF_FILE}"
     fi
-    envsubst < "${CONF_FILE}" > "${CONF_FILE}.tmp" && mv "${CONF_FILE}.tmp" "${CONF_FILE}"
+    envsubst < "${CONF_FILE}" > "${CONF_FILE}.tmp" && cp "${CONF_FILE}.tmp" "${CONF_FILE}"
+		#TODO run as root; remove the old *.tmp file
 }
 
 if [ "$1" = "help" ]; then
@@ -118,7 +126,8 @@ elif [ "$1" = "taskmanager" ]; then
     if [ -n "${FLINK_PROPERTIES}" ]; then
         echo "${FLINK_PROPERTIES}" >> "${CONF_FILE}"
     fi
-    envsubst < "${CONF_FILE}" > "${CONF_FILE}.tmp" && mv "${CONF_FILE}.tmp" "${CONF_FILE}"
+    envsubst < "${CONF_FILE}" > "${CONF_FILE}.tmp" && cp "${CONF_FILE}.tmp" "${CONF_FILE}"
+		#TODO run as root; remove old *.tmp file
 
     exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "$@"
 fi

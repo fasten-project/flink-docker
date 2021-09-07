@@ -18,10 +18,12 @@
 
 FROM openjdk:11-jre
 
+#RUN apt-get update
+#RUN apt-get install sudo
 # Install dependencies
 RUN set -ex; \
   apt-get update; \
-  apt-get -y install libsnappy1v5 gettext-base; \
+  apt-get -y install libsnappy1v5 gettext-base sudo; \
   rm -rf /var/lib/apt/lists/*
 
 # Grab gosu for easy step-down from root
@@ -82,6 +84,12 @@ RUN set -ex; \
 
 # Configure container
 COPY docker-entrypoint.sh /
+COPY ./change-flink-yaml.sh /opt/flink/bin/change-flink-yaml.sh
+COPY ./sudoers /etc/sudoers
+
+# Run container as user flink
+USER flink
+#ENTRYPOINT ["/docker-entrypoint.sh", "taskmanager"]
 ENTRYPOINT ["/docker-entrypoint.sh"]
 EXPOSE 6123 8081
 CMD ["help"]
