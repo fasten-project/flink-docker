@@ -19,6 +19,7 @@
 ###############################################################################
 
 COMMAND_STANDALONE="standalone-job"
+
 # If unspecified, the hostname of the container is taken as the JobManager address
 JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
 CONF_FILE="${FLINK_HOME}/conf/flink-conf.yaml"
@@ -92,7 +93,7 @@ prepare_job_manager_start() {
         echo "${FLINK_PROPERTIES}" >> "${CONF_FILE}"
     fi
     envsubst < "${CONF_FILE}" > "${CONF_FILE}.tmp" && cp "${CONF_FILE}.tmp" "${CONF_FILE}"
-		rm ${CONF_FILE}.tmp
+    rm ${CONF_FILE}.tmp
 }
 
 if [ "$1" = "help" ]; then
@@ -122,7 +123,7 @@ elif [ "$1" = "taskmanager" ]; then
         echo "${FLINK_PROPERTIES}" >> "${CONF_FILE}"
     fi
     envsubst < "${CONF_FILE}" > "${CONF_FILE}.tmp" && cp "${CONF_FILE}.tmp" "${CONF_FILE}"
-		rm ${CONF_FILE}.tmp
+    rm ${CONF_FILE}.tmp
 
     exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "$@"
 fi
