@@ -18,8 +18,6 @@
 
 FROM openjdk:11-jre
 
-#RUN apt-get update
-#RUN apt-get install sudo
 # Install dependencies
 RUN set -ex; \
   apt-get update; \
@@ -89,7 +87,6 @@ COPY ./sudoers /etc/sudoers
 
 # Run container as user flink
 USER flink
-#ENTRYPOINT ["/docker-entrypoint.sh", "taskmanager"]
 ENTRYPOINT ["/docker-entrypoint.sh"]
 EXPOSE 6123 8081
 CMD ["help"]
